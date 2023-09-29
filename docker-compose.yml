@@ -1,0 +1,38 @@
+version: '4'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.11
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+    command:
+      [
+        "uvicorn",
+        "main:app",
+        "--reload",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "80"
+      ]
+
+  frontend:
+    image: node:18
+    volumes:
+      - ./frontend:/app
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    command: [ "npm", "start" ]
